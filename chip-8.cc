@@ -178,22 +178,53 @@ void Chip8::op_8xy3()
 
 void Chip8::op_8xy4()
 {
-	//TO DO
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+
+	uint8_t sum = regesters[Vx] + regesters[Vy];
+	if(sum > 255U)
+	{
+		regesters[NUM_REGESTERS] = 1;
+	}
+	else
+	{
+		regesters[NUM_REGESTERS] = 0;
+	}
+	
+	regesters[Vx] = sum & 0x00FFU;
 }
 
 void Chip8::op_8xy5()
 {
-	//TO DO
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+
+	uint8_t difference = regesters[Vx] - regesters[Vy];
+	if(regesters[Vx] > regesters[Vy])
+	{
+		regesters[NUM_REGESTERS] = 1;
+	}
+	else
+	{
+		regesters[NUM_REGESTERS] = 0;
+	}
+	
+	regesters[Vx] = difference;
 }
 
 void Chip8::op_8xy6()
-{
-	//TO DO
+{	
+	//if the last bit of value stored in Vx is 1 set Vf to 1 else set to 0
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	regesters[NUM_REGESTERS] = regesters[Vx] & 0x1U;
+	
+	//divide regester Vx by 2
+	regesters[Vx] = regesters[Vx] >> 1U;
 }
 
 void Chip8::op_8xy7()
 {
-	//TO DO
+	
 }
 
 void Chip8::op_8xyE()
