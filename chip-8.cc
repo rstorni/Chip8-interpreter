@@ -224,32 +224,58 @@ void Chip8::op_8xy6()
 
 void Chip8::op_8xy7()
 {
-	
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+
+	if(regesters[Vy] > regesters[Vx])
+	{
+		regesters[NUM_REGESTERS] = 1;
+	}	
+	else
+	{
+		regesters[NUM_REGESTERS] = 0;
+	}
+
+	regesters[Vx] = regesters[Vy] - regesters[Vx]; 	
 }
 
 void Chip8::op_8xyE()
 {
-	//TO DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+	
+	regesters[NUM_REGESTERS] = (regesters[Vx] & 0x80U) >> 7U;
+	
+	regesters[Vx] = regesters[Vx] << 1U;
 }
 
 void Chip8::op_9xy0()
 {
-	//TO DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+	
+	if(regesters[Vx] != regesters[Vy])
+	{
+		pc += 2;
+	}
+
 }
 
 void Chip8::op_Annn()
 {
-	//TO DO
+	uint16_t address = opcodes & 0x0FFFU;
+	index_regester = address;
 }
 
 void Chip8::op_Bnnn()
 {
-	//TO DO
+	uint16_t address = opcodes & 0x0FFFU;
+	pc = address + regesters[0];
 }
 
 void Chip8::op_Cxkk()
 {
-	//To DO
+	
 }
 
 void Chip8::op_Dxyn()
