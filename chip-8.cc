@@ -39,7 +39,6 @@ Chip8::Chip8()
 	{
 		memory[FONT_START_ADDRESS + i] = fontSet[i];
 	}
-
 	
 	
 }
@@ -70,20 +69,31 @@ void Chip8::loadROM(char const* filename)
 	}
 }
 
-//Clear Screen
+void Chip8::cycle()
+{
+	//we left shift by 8 to make a 16byte adress (adds 8 zeros to the right of the starting value)
+	opcodes = (memory[ROM_START_ADDRESS] << 8U) | memory[ROM_START_ADDRESS + 1];
+	pc += 2;
+	
+		
+	 
+	
+}
+
+//CLS clears the display
 void Chip8::op_00E0()
 {
 	//TO DO
 }
 
-//RETURN
+//RET returns from a subroutine
 void Chip8::op_00EE()
 {
 	--stack_pointer;
 	pc = stack[stack_pointer];
 }
 
-//JUMP
+//JP jump to location nnn
 void Chip8::op_1nnn()
 {
 	pc = opcodes & 0x0FFFU; 
@@ -280,52 +290,73 @@ void Chip8::op_Cxkk()
 
 void Chip8::op_Dxyn()
 {
-	//TO DO
+	
 }
 
 void Chip8::op_Ex9E()
 {
-	//TO DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t key = regesters[Vx];
+
+	if(keypad[key])
+	{
+		pc += 2;
+	}
 }
 
 void Chip8::op_ExA1()
 {
-	//TO DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t key = regesters[Vx];
+	
+	if(!keypad[key])
+	{
+		pc += 2;
+	}
 }
 
 void Chip8::op_Fx07()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	regesters[Vx] = delay_timer;
 }
 
 void Chip8::op_Fx0A()
 {
-	//To DO
+	
 }
 
 void Chip8::op_Fx15()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	delay_timer = regesters[Vx];
+
 }
 
 void Chip8::op_Fx18()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	sound_timer = regesters[Vx];
+
 }
 
 void Chip8::op_Fx1E()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	index_regester = index_regester + regesters[Vx];
 }
 
+//LD F, Vx Set I equal to the location of sprite for digit Vx
 void Chip8::op_Fx29()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t digit = regesters[Vx];
+	index_regester = FONT_START_ADDRESS + (digit * 5);
 }
 
 void Chip8::op_Fx33()
 {
-	//TO DO 
+	
 }
 
 void Chip8::op_Fx55()

@@ -21,7 +21,7 @@ public:
 	uint32_t display[DISPLAY_HIGHT * DISPLAY_WIDTH];
 
 private:
-
+	
 	//34 chip8 instructions
 	
 	//Does Nothing
