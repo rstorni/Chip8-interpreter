@@ -2,6 +2,7 @@
 #include <chrono>
 #include <random>
 #include <fstream>
+#include <functional>
 
 const unsigned int FONT_SET_SIZE = 80;
 const unsigned int FONT_START_ADDRESS = 0x050;
@@ -28,18 +29,68 @@ uint8_t fontSet[FONT_SET_SIZE] =
 	};
 
 
+
 //:randGen(std::chrono:system_clock::now().time_since_epoch().count())
 Chip8::Chip8()
 {
-	// sets the pc to the starting address location
+	
+	// initializes variables
 	pc = ROM_START_ADDRESS;
+	index_regester = 0;
+	stack_pointer = 0;
+	sound_timer = 0;
+	delay_timer = 0;
+	opcodes = 0;
+	
+	//initialize function Tables
+	FunctionTable[0x0] = &Chip8::table0;
+	FunctionTable[0x1] = &Chip8::op_1nnn; 
+	FunctionTable[0x2] = &Chip8::op_2nnn;
+	FunctionTable[0x3] = &Chip8::op_3xkk;
+	FunctionTable[0x4] = &Chip8::op_4xkk;
+	FunctionTable[0x5] = &Chip8::op_5xy0;
+	FunctionTable[0x6] = &Chip8::op_6xkk;
+	FunctionTable[0x7] = &Chip8::op_7xkk;
+	FunctionTable[0x8] = &Chip8::table8;
+	FunctionTable[0x9] = &Chip8::op_9xy0;
+	FunctionTable[0xA] = &Chip8::op_Annn;
+	FunctionTable[0xB] = &Chip8::op_Bnnn;
+	FunctionTable[0xC] = &Chip8::op_Cxkk;
+	FunctionTable[0xD] = &Chip8::op_Dxyn;
+	FunctionTable[0xE] = &Chip8::tableE;
+	FunctionTable[0xF] = &Chip8::tableF;
+	
+	Table0[0x0] = &Chip8::op_00E0;
+	Table0[0xE] = &Chip8::op_00EE;
+
+	Table8[0x0] = &Chip8::op_8xy0;
+	Table8[0x1] = &Chip8::op_8xy1;
+	Table8[0x2] = &Chip8::op_8xy2;
+	Table8[0x3] = &Chip8::op_8xy3;
+	Table8[0x4] = &Chip8::op_8xy4;
+	Table8[0x5] = &Chip8::op_8xy5;
+	Table8[0x6] = &Chip8::op_8xy6;
+	Table8[0x7] = &Chip8::op_8xy7;
+	Table8[0xE] = &Chip8::op_8xyE;
+
+	TableE[0x1] = &Chip8::op_ExA1;
+	TableE[0xE] = &Chip8::op_Ex9E;
+
+	TableF[0x07] = &Chip8::op_Fx07;
+	TableF[0x0A] = &Chip8::op_Fx0A;
+	TableF[0x15] = &Chip8::op_Fx15;
+	TableF[0x18] = &Chip8::op_Fx18;
+	TableF[0x1E] = &Chip8::op_Fx1E;
+	TableF[0x29] = &Chip8::op_Fx29;
+	TableF[0x33] = &Chip8::op_Fx33;
+	TableF[0x55] = &Chip8::op_Fx55;
+	TableF[0x65] = &Chip8::op_Fx65;
 	
 	// Loads the font set into the RAM
 	for(unsigned int i = 0; i < FONT_SET_SIZE; i++)
 	{
 		memory[FONT_START_ADDRESS + i] = fontSet[i];
 	}
-	
 	
 }
 
@@ -75,9 +126,39 @@ void Chip8::cycle()
 	opcodes = (memory[ROM_START_ADDRESS] << 8U) | memory[ROM_START_ADDRESS + 1];
 	pc += 2;
 	
-		
-	 
+	//this syntax is disgusting but essentialy we are dereferencing the memory address that contains the function we want to call
+	//then calling it from the chip8 object through this	
+	(this->*(FunctionTable[(opcodes & 0xF000U) >> 12U]))();		
 	
+	if(delay_timer > 0)
+	{	 
+		delay_timer -= 1;
+	}	
+	if(sound_timer > 0)
+	{
+		sound_timer -= 1;	
+	}
+
+}
+
+void Chip8::table0()
+{
+	(this->*(Table0[opcodes & 0x000FU]))();
+}
+
+void Chip8::table8()
+{
+	(this->*(Table8[opcodes & 0x000FU]))();	
+}
+
+void Chip8::tableE()
+{
+	(this->*(TableE[opcodes & 0x000FU]))();
+}
+
+void Chip8::tableF()
+{
+	(this->*(TableF[opcodes * 0x00FFU]))();
 }
 
 //CLS clears the display
@@ -194,11 +275,11 @@ void Chip8::op_8xy4()
 	uint8_t sum = regesters[Vx] + regesters[Vy];
 	if(sum > 255U)
 	{
-		regesters[NUM_REGESTERS] = 1;
+		regesters[0xF] = 1;
 	}
 	else
 	{
-		regesters[NUM_REGESTERS] = 0;
+		regesters[0xF] = 0;
 	}
 	
 	regesters[Vx] = sum & 0x00FFU;
@@ -212,11 +293,11 @@ void Chip8::op_8xy5()
 	uint8_t difference = regesters[Vx] - regesters[Vy];
 	if(regesters[Vx] > regesters[Vy])
 	{
-		regesters[NUM_REGESTERS] = 1;
+		regesters[0xF] = 1;
 	}
 	else
 	{
-		regesters[NUM_REGESTERS] = 0;
+		regesters[0xF] = 0;
 	}
 	
 	regesters[Vx] = difference;
@@ -226,7 +307,7 @@ void Chip8::op_8xy6()
 {	
 	//if the last bit of value stored in Vx is 1 set Vf to 1 else set to 0
 	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
-	regesters[NUM_REGESTERS] = regesters[Vx] & 0x1U;
+	regesters[0xF] = regesters[Vx] & 0x1U;
 	
 	//divide regester Vx by 2
 	regesters[Vx] = regesters[Vx] >> 1U;
@@ -239,11 +320,11 @@ void Chip8::op_8xy7()
 
 	if(regesters[Vy] > regesters[Vx])
 	{
-		regesters[NUM_REGESTERS] = 1;
+		regesters[0xF] = 1;
 	}	
 	else
 	{
-		regesters[NUM_REGESTERS] = 0;
+		regesters[0xF] = 0;
 	}
 
 	regesters[Vx] = regesters[Vy] - regesters[Vx]; 	
@@ -254,7 +335,7 @@ void Chip8::op_8xyE()
 	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
 	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
 	
-	regesters[NUM_REGESTERS] = (regesters[Vx] & 0x80U) >> 7U;
+	regesters[0xF] = (regesters[Vx] & 0x80U) >> 7U;
 	
 	regesters[Vx] = regesters[Vx] << 1U;
 }

@@ -22,7 +22,13 @@ public:
 
 private:
 	
-	//34 chip8 instructions
+	void table0();
+
+	void table8();
+
+	void tableE();
+
+	void tableF();	
 	
 	//Does Nothing
 	void op_null();
@@ -143,6 +149,14 @@ private:
 	uint8_t delay_timer;
 	uint16_t opcodes;
 
+	//define tables
+	typedef void(Chip8::*Chip8Function)();
+	
+	Chip8Function FunctionTable[0xF + 1];
+	Chip8Function Table0[0xE + 1];
+	Chip8Function Table8[0xE + 1];
+	Chip8Function TableE[0xE + 1];
+	Chip8Function TableF[0x65 + 1];	
 };
 
 
