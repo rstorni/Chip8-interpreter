@@ -30,10 +30,13 @@ uint8_t fontSet[FONT_SET_SIZE] =
 
 
 
-//:randGen(std::chrono:system_clock::now().time_since_epoch().count())
 Chip8::Chip8()
+	:rng(std::chrono::system_clock::now().time_since_epoch().count())
 {
-	
+//	uint8_t seed = std::chrono::system_clock::now().time_since_epoch().count();
+//	rng(seed);
+	random_byte = std::uniform_int_distribution<uint8_t>(0, 255U);	
+
 	// initializes variables
 	pc = ROM_START_ADDRESS;
 	index_regester = 0;
@@ -164,7 +167,7 @@ void Chip8::tableF()
 //CLS clears the display
 void Chip8::op_00E0()
 {
-	//TO DO
+	std::memset(display, 0, sizeof(display));
 }
 
 //RET returns from a subroutine
@@ -366,7 +369,10 @@ void Chip8::op_Bnnn()
 
 void Chip8::op_Cxkk()
 {
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t byte = opcodes & 0x00FFU;
 	
+	regesters[Vx] = random_byte(rng) & byte;	
 }
 
 void Chip8::op_Dxyn()

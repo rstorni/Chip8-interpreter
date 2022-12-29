@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 #include <cstdint>
+#include <random>
 
 //CONSTANTS
 const unsigned int MEMORY_SIZE = 4096;
@@ -148,6 +149,11 @@ private:
 	uint8_t sound_timer;
 	uint8_t delay_timer;
 	uint16_t opcodes;
+
+
+	//define random generator
+	std::default_random_engine rng;
+	std::uniform_int_distribution<uint8_t> random_byte;
 
 	//define tables
 	typedef void(Chip8::*Chip8Function)();
