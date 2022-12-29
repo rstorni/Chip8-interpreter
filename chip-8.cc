@@ -375,7 +375,34 @@ void Chip8::op_Cxkk()
 
 void Chip8::op_Dxyn()
 {
-	//TO DO	
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
+	uint8_t x_coordinate = regesters[Vx] & 63U;
+	uint8_t y_coordinate = regesters[Vy] & 31U;
+	uint16_t sprite_address = index_regester;
+	uint8_t height = opcodes & 0x000FU;
+	regesters[0xF] = 0;
+	
+	for(unsigned int row = 0; row < height; row++)
+	{
+		uint8_t sprite_byte = memory[sprite_address + row];
+		for(unsigned int pixle = 0; pixle < 8; pixle++)
+		{
+			uint8_t sprite_pixle = sprite_byte & (0x80U >> pixle);
+			uint32_t* screen_pixle = &display[(y_coordinate + row) * DISPLAY_WIDTH + (x_coordinate + pixle)];
+		
+			if(sprite_pixle)
+			{
+				if (*screen_pixle == 0xFFFFFFFF)
+				{
+					regesters[0xF] = 1;
+				}
+
+				// Effectively XOR with the sprite pixel
+				*screen_pixle ^= 0xFFFFFFFF;
+			}	
+		}
+	}	
 }
 
 void Chip8::op_Ex9E()
@@ -452,15 +479,24 @@ void Chip8::op_Fx29()
 
 void Chip8::op_Fx33()
 {
-	// TO DO	
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	
 }
 
 void Chip8::op_Fx55()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	for(uint8_t i = 0; i <= Vx; i++)
+	{
+		memory[index_regester + i] = regesters[i];
+	}
 }
 
 void Chip8::op_Fx65()
 {
-	//To DO
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
+	for(uint8_t i = 0; i <= Vx; i++)
+	{
+		regesters[i] = memory[index_regester + i];
+	}
 }
