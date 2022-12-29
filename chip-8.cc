@@ -33,8 +33,6 @@ uint8_t fontSet[FONT_SET_SIZE] =
 Chip8::Chip8()
 	:rng(std::chrono::system_clock::now().time_since_epoch().count())
 {
-//	uint8_t seed = std::chrono::system_clock::now().time_since_epoch().count();
-//	rng(seed);
 	random_byte = std::uniform_int_distribution<uint8_t>(0, 255U);	
 
 	// initializes variables
@@ -377,7 +375,7 @@ void Chip8::op_Cxkk()
 
 void Chip8::op_Dxyn()
 {
-	
+	//TO DO	
 }
 
 void Chip8::op_Ex9E()
@@ -410,7 +408,18 @@ void Chip8::op_Fx07()
 
 void Chip8::op_Fx0A()
 {
+	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
 	
+	for(int i = 0x0U; i <= 0xF; i++)
+	{
+		if(keypad[i])
+		{
+			regesters[Vx] = i;
+			return;	
+		}	
+	}
+
+	pc -= 2;	
 }
 
 void Chip8::op_Fx15()
@@ -443,7 +452,7 @@ void Chip8::op_Fx29()
 
 void Chip8::op_Fx33()
 {
-	
+	// TO DO	
 }
 
 void Chip8::op_Fx55()
