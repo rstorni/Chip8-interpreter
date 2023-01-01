@@ -5,7 +5,7 @@
 GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int texturedWidth, int texturedHeight)
 {
 	//Initializes the SDL Video lib needed for graphics
-	SDL_Init(SDL_INIT_VIDEO)
+	SDL_Init(SDL_INIT_VIDEO);
 	
 	//Specifying the OpenGL Version
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -22,20 +22,20 @@ GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int
 
 	//After creating a window set the context
 	gl_context = SDL_GL_CreateContext(window);
-	SDL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(1);
 	
 	//Setup GL function pointers
-	gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress);
-	
+	gladLoadGL();
+		
 	//creating a texture to go on our window
-	glGenTexture(1, &framebuffer_texture);
+	glGenTextures(1, &framebuffer_texture);
 
 	//Binding the created texture
 	glBindTexture(GL_TEXTURE_2D, framebuffer_texture);
 
 	//If the texture is shrunk or enlarged use the nearest neighbor algo to map the texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FLITER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	//If the screen is larger than the texture clamp the S and T axis to the edge
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -63,7 +63,7 @@ void GameWindow::Update(void const* buffer, int pitch)
 	SDL_RenderPresent(renderer);	
 }
 
-bool GameWindow::ProcessInput(uint8_t* keys)
+bool GameWindow::processInput(uint8_t* keys)
 {
 	bool quit = false;
 	SDL_Event event;
@@ -108,7 +108,7 @@ bool GameWindow::ProcessInput(uint8_t* keys)
 				
 					case SDLK_q:
 					{
-						keys[4] = 1
+						keys[4] = 1;
 					}break;
 					
 					case SDLK_w:
