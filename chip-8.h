@@ -1,5 +1,5 @@
-#ifndef CHIP8_H
-#define CHIP8_H
+#pragma once
+
 #include <cstdint>
 #include <random>
 
@@ -17,12 +17,15 @@ public:
 	Chip8(); //constructor
 	void loadROM(char const* filename);
 	void cycle();
+	//prints state used for debugging
+	void printState();
 	
 	uint8_t keypad[NUM_KEYS];
 	uint32_t display[DISPLAY_HIGHT * DISPLAY_WIDTH];
 
-private:
 	
+private:
+
 	void table0();
 
 	void table8();
@@ -165,5 +168,3 @@ private:
 	Chip8Function TableF[0x65 + 1];	
 };
 
-
-#endif

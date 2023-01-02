@@ -1,5 +1,5 @@
 #include "gameWindow.h"
-#include "chip-8.cc"
+#include <iostream>
 
 
 GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int texturedWidth, int texturedHeight)
@@ -169,5 +169,5 @@ bool GameWindow::processInput(uint8_t* keys)
 			}
 		}
 	}
-	
+	return quit;	
 }

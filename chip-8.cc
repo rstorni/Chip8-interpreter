@@ -3,6 +3,7 @@
 #include <random>
 #include <fstream>
 #include <functional>
+#include <iostream>
 
 const unsigned int FONT_SET_SIZE = 80;
 const unsigned int FONT_START_ADDRESS = 0x050;
@@ -41,7 +42,12 @@ Chip8::Chip8()
 	stack_pointer = 0;
 	sound_timer = 0;
 	delay_timer = 0;
-	opcodes = 0;
+	opcodes = 0;	
+
+	for(int i = 0; i < NUM_REGESTERS; i++)
+	{
+		regesters[i] = 0;
+	}
 	
 	//initialize function Tables
 	FunctionTable[0x0] = &Chip8::table0;
@@ -122,9 +128,9 @@ void Chip8::loadROM(char const* filename)
 }
 
 void Chip8::cycle()
-{
+{		
 	//we left shift by 8 to make a 16byte adress (adds 8 zeros to the right of the starting value)
-	opcodes = (memory[ROM_START_ADDRESS] << 8U) | memory[ROM_START_ADDRESS + 1];
+	opcodes = (memory[pc] << 8U) | memory[pc + 1];
 	pc += 2;
 	
 	//this syntax is disgusting but essentialy we are dereferencing the memory address that contains the function we want to call
@@ -140,6 +146,15 @@ void Chip8::cycle()
 		sound_timer -= 1;	
 	}
 
+}
+
+void Chip8::printState()
+{
+	std::cout << "CHIP-8 State" << std::endl;
+	std::cout << "Program Counter: " << pc << std::endl;
+	std::cout << "Index Regester: " << index_regester << std::endl;
+	std::cout << "Regesters:" << std::endl;
+	std::cout << "regester V0" << regesters[0] << std::endl; 
 }
 
 void Chip8::table0()
