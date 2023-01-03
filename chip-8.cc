@@ -49,6 +49,11 @@ Chip8::Chip8()
 		regesters[i] = 0;
 	}
 	
+	op_00E0();	
+	//for(int i = 0; i < (DISPLAY_WIDTH * DISPLAY_HIGHT); i++)
+	//{
+	//	display[i] = 0;
+	//}	
 	//initialize function Tables
 	FunctionTable[0x0] = &Chip8::table0;
 	FunctionTable[0x1] = &Chip8::op_1nnn; 
