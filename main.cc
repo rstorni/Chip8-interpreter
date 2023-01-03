@@ -32,7 +32,6 @@ int main(int argc, char** argv)
 	//emulation loop
 	while(!quit)
 	{
-		Chip8_Emulator.printState();
 
 		//if signaled to quit exit
 		quit = Window.processInput(Chip8_Emulator.keypad);
@@ -44,6 +43,9 @@ int main(int argc, char** argv)
 		//if the change in time is greater that the delay set then run a cycle	
 		if(delta_t > cycleDelay)
 		{
+			
+			Chip8_Emulator.printState();
+
 			lastcycle = currentTime;
 			
 			Chip8_Emulator.cycle();

@@ -66,7 +66,13 @@ Chip8::Chip8()
 	FunctionTable[0xD] = &Chip8::op_Dxyn;
 	FunctionTable[0xE] = &Chip8::tableE;
 	FunctionTable[0xF] = &Chip8::tableF;
-	
+
+	for(int i = 0; i < 0xF; i++)
+	{
+		Table0[i] = &Chip8::op_null;
+		Table8[i] = &Chip8::op_null;
+		TableE[i] = &Chip8::op_null;
+	}		
 	Table0[0x0] = &Chip8::op_00E0;
 	Table0[0xE] = &Chip8::op_00EE;
 
@@ -83,6 +89,10 @@ Chip8::Chip8()
 	TableE[0x1] = &Chip8::op_ExA1;
 	TableE[0xE] = &Chip8::op_Ex9E;
 
+	for(int i = 0; i < 0x65; i++)
+	{
+		TableF[i] = &Chip8::op_null;
+	}
 	TableF[0x07] = &Chip8::op_Fx07;
 	TableF[0x0A] = &Chip8::op_Fx0A;
 	TableF[0x15] = &Chip8::op_Fx15;
@@ -153,8 +163,8 @@ void Chip8::printState()
 	std::cout << "CHIP-8 State" << std::endl;
 	std::cout << "Program Counter: " << pc << std::endl;
 	std::cout << "Index Regester: " << index_regester << std::endl;
-	std::cout << "Regesters:" << std::endl;
-	std::cout << "regester V0" << regesters[0] << std::endl; 
+	std::cout << "regester V0: " << regesters[0] << std::endl; 
+	std::cout << std::endl;
 }
 
 void Chip8::table0()
@@ -175,6 +185,11 @@ void Chip8::tableE()
 void Chip8::tableF()
 {
 	(this->*(TableF[opcodes * 0x00FFU]))();
+}
+
+void Chip8::op_null()
+{
+
 }
 
 //CLS clears the display
