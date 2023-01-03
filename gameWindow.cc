@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int texturedWidth, int texturedHeight)
+GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int textureWidth, int textureHeight)
 {
 	//Initializes the SDL Video lib needed for graphics
 	SDL_Init(SDL_INIT_VIDEO);
@@ -18,33 +18,12 @@ GameWindow::GameWindow(char const* title, int windowWidth, int windowHeight, int
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		windowWidth,
 		windowHeight,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		SDL_WINDOW_RESIZABLE);
 
-	//After creating a window set the context
-	gl_context = SDL_GL_CreateContext(window);
-	SDL_GL_SetSwapInterval(1);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	
-	//Setup GL function pointers
-	gladLoadGL();
-		
-	//creating a texture to go on our window
-	glGenTextures(1, &framebuffer_texture);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
 
-	//Binding the created texture
-	glBindTexture(GL_TEXTURE_2D, framebuffer_texture);
-
-	//If the texture is shrunk or enlarged use the nearest neighbor algo to map the texture
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	//If the screen is larger than the texture clamp the S and T axis to the edge
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);	
-	
-	//Creates an image texture that will be passed to the screen
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 640, 320, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
-		
 }
 
 GameWindow::~GameWindow()
