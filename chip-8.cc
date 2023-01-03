@@ -407,29 +407,37 @@ void Chip8::op_Dxyn()
 {
 	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
 	uint8_t Vy = (opcodes & 0x00F0U) >> 4U;
-	uint8_t x_coordinate = regesters[Vx] & 63U;
-	uint8_t y_coordinate = regesters[Vy] & 31U;
-	uint16_t sprite_address = index_regester;
 	uint8_t height = opcodes & 0x000FU;
+	
+	//We modulo to wrap around if the coordinates are too large
+	uint8_t x_coordinate = regesters[Vx] % DISPLAY_WIDTH;
+	uint8_t y_coordinate = regesters[Vy] % DISPLAY_HIGHT;
+
+	//Address in memory where the sprite starts
+	uint16_t sprite_address = index_regester;
+	
+	//set flag to zero (might be modified later
 	regesters[0xF] = 0;
 	
 	for(unsigned int row = 0; row < height; row++)
 	{
+		//gets the byte we want to draw to the screen
 		uint8_t sprite_byte = memory[sprite_address + row];
+
 		for(unsigned int pixle = 0; pixle < 8; pixle++)
 		{
 			uint8_t sprite_pixle = sprite_byte & (0x80U >> pixle);
 			uint32_t* screen_pixle = &display[(y_coordinate + row) * DISPLAY_WIDTH + (x_coordinate + pixle)];
-		
-			if(sprite_pixle)
+			
+			if(sprite_pixle != 0)
 			{
-				if (*screen_pixle == 0xFFFFFFFF)
+				// set flag to one if there was a collision
+				if(*screen_pixle)
 				{
 					regesters[0xF] = 1;
 				}
-
-				// Effectively XOR with the sprite pixel
-				*screen_pixle ^= 0xFFFFFFFF;
+				
+				*screen_pixle ^= 0xFFFFFFFFU;
 			}	
 		}
 	}	
