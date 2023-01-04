@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 		if(delta_t > cycleDelay)
 		{
 			
-			Chip8_Emulator.printState();
+	//		Chip8_Emulator.printState();
 
 			lastcycle = currentTime;
 			

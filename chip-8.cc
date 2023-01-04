@@ -94,7 +94,7 @@ Chip8::Chip8()
 	TableE[0x1] = &Chip8::op_ExA1;
 	TableE[0xE] = &Chip8::op_Ex9E;
 
-	for(int i = 0; i < 0x65; i++)
+	for(int i = 0; i < 0x66; i++)
 	{
 		TableF[i] = &Chip8::op_null;
 	}
@@ -189,7 +189,7 @@ void Chip8::tableE()
 
 void Chip8::tableF()
 {
-	(this->*(TableF[opcodes * 0x00FFU]))();
+	(this->*(TableF[opcodes & 0x00FFU]))();
 }
 
 void Chip8::op_null()
@@ -523,7 +523,9 @@ void Chip8::op_Fx29()
 void Chip8::op_Fx33()
 {
 	uint8_t Vx = (opcodes & 0x0F00U) >> 8U;
-	
+	memory[index_regester + 2] = regesters[Vx] % 10;
+	memory[index_regester + 1] = (regesters[Vx] / 10) % 10;
+	memory[index_regester] = (regesters[Vx] / 100) % 10;	
 }
 
 void Chip8::op_Fx55()
